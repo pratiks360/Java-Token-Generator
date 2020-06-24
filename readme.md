@@ -34,8 +34,9 @@ This Project requires min Java 1.8 to execute
 ```sh
 #Ensure if java is installed
 $ java -version
-
-$ gradlew bootJar
+$ gradle bootJar
+$ cd ./build/libs
+$ java -jar tokenservice-1.0.0.jar
 ```
 
 

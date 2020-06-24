@@ -50,21 +50,28 @@ public class TokenUtility {
     }
 
     public TokenDTO dbMapper(TokenRequestModel request, String token) {
-        TokenDTO dto = new TokenDTO();
+        try {
+            TokenDTO dto = new TokenDTO();
 
-        dto.setCustomerId(request.getCustomerId());
-        dto.setChannel(request.getChannel());
-        dto.setAlphanumeric(String.valueOf(request.getIsAlphanumeric()));
-        dto.setLength(request.getLength());
-        if (request.getExpiresIn() == 0)
-            dto.setExpiresIn(172800);
-        else
-            dto.setExpiresIn(request.getExpiresIn());
-        dto.setTime(dbutil.getCurrentTimeStamp());
-        dto.setToken(ecutil.encrypt(token));
-        String expiryTime = Instant.now().plusSeconds(dto.getExpiresIn()).atOffset(ZoneOffset.ofHoursMinutes(5, 30)).toString();
-        dto.setExpiryAt(expiryTime);
-        return dto;
+            dto.setCustomerId(request.getCustomerId());
+            dto.setChannel(request.getChannel());
+            dto.setAlphanumeric(String.valueOf(request.getIsAlphanumeric()));
+            dto.setLength(request.getLength());
+            if (request.getExpiresIn() == 0)
+                dto.setExpiresIn(172800);
+            else
+                dto.setExpiresIn(request.getExpiresIn());
+            dto.setTime(dbutil.getCurrentTimeStamp());
+            dto.setToken(ecutil.encrypt(token));
+            String expiryTime = Instant.now().plusSeconds(dto.getExpiresIn()).atOffset(ZoneOffset.ofHoursMinutes(5, 30)).toString();
+            dto.setExpiryAt(expiryTime);
+            return dto;
+        } catch (TokenGenerationException ex) {
+            throw new TokenGenerationException(ex.getMessage(), ex.getCode());
+        } catch (Exception ex) {
+            throw new TokenGenerationException(ex.getMessage(), "501");
+        }
+
     }
 
     public boolean checkIfTokenAlreadyPersists(TokenRequestModel request) {
@@ -110,6 +117,8 @@ public class TokenUtility {
             }
         } catch (TokenGenerationException ex) {
             throw new TokenGenerationException(ex.getMessage(), ex.getCode());
+        } catch (Exception ex) {
+            throw new TokenGenerationException(ex.getMessage(), "501");
         }
 
     }
@@ -165,7 +174,7 @@ public class TokenUtility {
         } catch (TokenGenerationException ex) {
             throw new TokenGenerationException(ex.getMessage(), ex.getCode());
         } catch (Exception ex) {
-            throw new TokenGenerationException(ex.getMessage());
+            throw new TokenGenerationException(ex.getMessage(), "501");
         }
 
     }
