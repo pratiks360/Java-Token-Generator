@@ -12,6 +12,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.validation.UnexpectedTypeException;
+import java.util.Objects;
+
 @Service
 public class TokenServiceImpl implements TokenService {
 
@@ -56,25 +59,37 @@ public class TokenServiceImpl implements TokenService {
 
     @Override
     public String validate(TokenRequestModel tokenrequest) {
-        logger.info("Validation Token for CustomerId {} for channel {}", tokenrequest.getCustomerId(), tokenrequest.getChannel());
-        if (tokenutil.checkTokenValidity(tokenrequest)) {
-            return "{\n" +
-                    "\n" +
-                    " \n" +
-                    "\n" +
-                    "  \"status\" : \"SUCCESS\"\n" +
-                    "\n" +
-                    "}";
+        try {
+            logger.info("Validation Token for CustomerId {} for channel {}", tokenrequest.getCustomerId(), tokenrequest.getChannel());
+            if (Objects.isNull(tokenrequest.getCustomerId()) || Objects.isNull(tokenrequest.getChannel()) || Objects.isNull(tokenrequest.getToken()))
+                throw new UnexpectedTypeException("");
+            if (tokenutil.checkTokenValidity(tokenrequest)) {
+                return "{\n" +
+                        "\n" +
+                        " \n" +
+                        "\n" +
+                        "  \"status\" : \"SUCCESS\"\n" +
+                        "\n" +
+                        "}";
+            }
+
+
+            return null;
+        } catch (UnexpectedTypeException e) {
+            throw new UnexpectedTypeException("CustomerId/Channel/token are mandatory");
         }
-
-
-        return null;
     }
 
     @Override
     public String reissueToken(TokenRequestModel tokenrequest) {
-        logger.info("Reissuing Token for CustomerId {} for channel {}", tokenrequest.getCustomerId(), tokenrequest.getChannel());
-        String result = tokenutil.reissueToken(tokenrequest);
-        return result;
+        try {
+            if (Objects.isNull(tokenrequest.getCustomerId()) || Objects.isNull(tokenrequest.getChannel()))
+                throw new UnexpectedTypeException("");
+            logger.info("Reissuing Token for CustomerId {} for channel {}", tokenrequest.getCustomerId(), tokenrequest.getChannel());
+            String result = tokenutil.reissueToken(tokenrequest);
+            return result;
+        } catch (UnexpectedTypeException e) {
+            throw new UnexpectedTypeException("CustomerId/Channel are mandatory");
+        }
     }
 }

@@ -38,7 +38,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({MethodArgumentNotValidException.class, UnexpectedTypeException.class})
     public ResponseEntity<ErrorDetails> handleValidationExceptions(
-            MethodArgumentNotValidException ex, WebRequest request) {
+            Exception ex, WebRequest request) {
         LOGGER.error(exceptionMsg, ex.getClass(), ex.getMessage());
         ErrorDetails errorDetails = new ErrorDetails(
                 request.getDescription(false), ex.getMessage());
